@@ -35,10 +35,20 @@
 					v-if="show"
 					:parent="parent"
 					:child="child"
-					:has-side-menu="hasSideMenu"
 					:direction="isHorizontal ? 'ttb' : 'ltr'"
 					show-blocker
 				/>
+				<div
+					:class="[
+						isHorizontal
+							? 'lvl1-horizontal-inner'
+							: 'lvl1-vertical-inner',
+					]"
+				>
+					<template v-for="i in 5" :key="i">
+						<h1>Menu item {{ i }}</h1>
+					</template>
+				</div>
 			</div>
 			<div
 				v-show="show"
@@ -55,7 +65,18 @@
 					:direction="isHorizontal ? 'ttb' : 'ltr'"
 					show-blocker
 				/>
-				<div ref="child" class="lvl2-inner"></div>
+				<div
+					ref="child"
+					:class="[
+						isHorizontal
+							? 'lvl2-horizontal-inner'
+							: 'lvl2-vertical-inner',
+					]"
+				>
+					<template v-for="i in 5" :key="i">
+						<h2>Menu item {{ i }}</h2>
+					</template>
+				</div>
 			</div>
 			<div
 				v-show="show && showSecond"
@@ -92,9 +113,18 @@ const toggleMenu = (level) => {
 </script>
 
 <style lang="postcss">
-body {
+* {
 	margin: 0;
 	padding: 0;
+	box-sizing: border-box;
+}
+h1,
+h2 {
+	margin: 20px 0;
+	color: rgb(137, 183, 183);
+	cursor: pointer;
+	height: fit-content;
+	width: fit-content;
 }
 .nav-vertical {
 	width: 60px;
@@ -152,6 +182,7 @@ body {
 	background-color: darkslategrey;
 	width: 45%;
 	height: 100%;
+	padding: 30px 0 30px 30px;
 }
 .lvl1-vertical.menu-added {
 	width: 30% !important;
@@ -163,6 +194,19 @@ body {
 }
 .lvl1-horizontal.menu-added {
 	height: 30% !important;
+}
+.lvl1-horizontal-inner {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: space-between;
+	padding: 30px;
+}
+.lvl1-vertical-inner {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
 }
 .lvl2-vertical {
 	background-color: darkslategrey;
@@ -182,9 +226,19 @@ body {
 .lvl2-horizontal.menu-added {
 	height: 30% !important ;
 }
-.lvl2-inner {
+.lvl2-horizontal-inner {
 	width: 100%;
 	height: 100%;
+	display: flex;
+	justify-content: space-between;
+	padding: 30px;
+}
+.lvl2-vertical-inner {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	padding: 30px 0 30px 30px;
+	flex-direction: column;
 }
 .lvl3-vertical {
 	background-color: darkslategrey;
@@ -197,6 +251,7 @@ body {
 	background-color: darkslategrey;
 	height: 30%;
 	width: 50%;
+	margin-top: 20px;
 	filter: brightness(0.8);
 }
 .lvl3-inner {
