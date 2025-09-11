@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/compare/v1.0.0...v1.1.0) (2025-09-11)
+
+
+### Features
+
+* upgrade to latest version nuxt 4 ([1372ae0](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/commit/1372ae0e6e95b75cd1caaeab9f72c8cfef9e3a33))
+
 ## 1.0.0 (2024-10-21)
 
 
