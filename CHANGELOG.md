@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/compare/v1.1.0...v1.1.1) (2025-09-22)
+
+
+### Bug Fixes
+
+* switch main prop ([69641f5](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/commit/69641f5f220760e73e1c360f2b6fea4d2ce8687a))
+* update to ts config files ([e1f40ef](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/commit/e1f40ef615351025801699715b295e7b5bf94910))
+
 ## [1.1.0](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/compare/v1.0.0...v1.1.0) (2025-09-11)
 
 
