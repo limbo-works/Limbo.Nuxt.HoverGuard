@@ -30,10 +30,6 @@ const props = defineProps({
 		type: String,
 		default: 'ltr',
 	},
-	showBlocker: {
-		type: Boolean,
-		default: false,
-	},
 	distanceFromCursor: {
 		type: Number,
 		default: 5,
@@ -41,6 +37,10 @@ const props = defineProps({
 	timeoutDelay: {
 		type: Number,
 		default: 100,
+	},
+	showBlocker: {
+		type: Boolean,
+		default: false,
 	},
 });
 
@@ -273,6 +273,11 @@ watch(
 	},
 	{ immediate: true }
 );
+
+defineExpose({
+	updateObjectDimensions,
+	updateSvgDimensions,
+});
 </script>
 
 <style lang="postcss">
