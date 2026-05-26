@@ -1,24 +1,22 @@
 <template>
 	<svg
-		v-if="child"
+		v-show="child"
 		:key="`hover-guard-${id}`"
 		aria-hidden
+		class="c-hover-guard"
 		:style="{
-			zIndex: 99999,
-			position: 'absolute',
-			pointerEvents: 'none',
-			top: `${svgPosition.top}px`,
-			left: `${svgPosition.left}px`,
-			width: `${parentObj.width + gap}px`,
-			height: `${parentObj.height + gap}px`,
+			'--hover-guard-top': `${svgPosition.top}px`,
+			'--hover-guard-left': `${svgPosition.left}px`,
+			'--hover-guard-width': `${svg.width}px`,
+			'--hover-guard-height': `${svg.height}px`,
 		}"
 	>
 		<path
-			v-if="togglePath"
+			v-show="togglePath"
 			pointer-events="auto"
-			:stroke="[showBlocker ? 'red' : 'transparent']"
-			:stroke-width="[showBlocker ? '1px' : 'none']"
-			:fill="[showBlocker ? 'rgba(187,39,38,0.2)' : 'transparent']"
+			:stroke="showBlocker ? 'red' : 'transparent'"
+			:stroke-width="showBlocker ? '1px' : 'none'"
+			:fill="showBlocker ? 'rgba(187,39,38,0.2)' : 'transparent'"
 			:d="draw"
 		/>
 	</svg>
@@ -36,16 +34,24 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	distanceFromCursor: {
+		type: Number,
+		default: 5,
+	},
+	timeoutDelay: {
+		type: Number,
+		default: 100,
+	},
 });
 
 const id = useId();
+
 const parentObj = ref({ x: 0, y: 0, height: 0, width: 0 });
 const childObj = ref({ x: 0, y: 0, height: 0, width: 0 });
-const gap = ref(0);
 
 const mousePosition = ref({
-	x: window.innerWidth,
-	y: childObj.value.height,
+	x: typeof window !== 'undefined' ? window.innerWidth : 0,
+	y: 0,
 });
 
 const oldMousePosition = ref({
@@ -58,22 +64,22 @@ const svg = ref({
 	height: 0,
 });
 
+const timeout = ref(null);
+const rafId = ref(null);
+const resizeObserver = ref(null);
+
 // Toggle the path if the mouse is positioned between the parent and child x or y position
 const togglePath = computed(() => {
 	if (props.direction === 'ltr') {
 		return (
-			!(
-				mousePosition.value.x >= childObj.value.x ||
-				mousePosition.value.x <= parentObj.value.x
-			) && true
+			mousePosition.value.x < childObj.value.x &&
+			mousePosition.value.x > parentObj.value.x
 		);
 	}
 	if (props.direction === 'ttb') {
 		return (
-			!(
-				mousePosition.value.y >= childObj.value.y ||
-				mousePosition.value.y <= parentObj.value.y
-			) && true
+			mousePosition.value.y < childObj.value.y &&
+			mousePosition.value.y > parentObj.value.y
 		);
 	}
 	return false;
@@ -100,24 +106,62 @@ const draw = computed(() => {
 	if (props.direction === 'ltr') {
 		return `M 0, ${mousePosition.value.y - childObj.value.y} L ${
 			svg.value.width
-		}, ${svg.value.height} L ${svg.value.width}, ${childObj.value.y} z`;
+		}, ${svg.value.height} L ${svg.value.width}, 0 z`;
 	}
 	if (props.direction === 'ttb') {
 		return `M 0, ${svg.value.height} L ${svg.value.width}, ${
 			svg.value.height
-		} L ${mousePosition.value.x - childObj.value.x}, ${childObj.value.x} z`;
+		} L ${mousePosition.value.x - childObj.value.x}, 0 z`;
 	}
 });
 
-// Update the mouse position
-const updateMousePosition = (e) => {
-	let timeout;
+// Update the dimensions of the parent and child objects
+function updateObjectDimensions() {
+	if (!props.parent || !props.child) return;
+	const pRect = props.parent.getBoundingClientRect();
+	const cRect = props.child.getBoundingClientRect();
 
-	clearTimeout(timeout);
+	// Only update if dimensions actually changed to avoid unnecessary re-renders
+	if (
+		pRect.x !== parentObj.value.x ||
+		pRect.y !== parentObj.value.y ||
+		pRect.width !== parentObj.value.width ||
+		pRect.height !== parentObj.value.height
+	) {
+		parentObj.value = pRect;
+	}
+	if (
+		cRect.x !== childObj.value.x ||
+		cRect.y !== childObj.value.y ||
+		cRect.width !== childObj.value.width ||
+		cRect.height !== childObj.value.height
+	) {
+		childObj.value = cRect;
+	}
+}
+
+// Update the dimensions of the svg based on the parent, child and mouse position
+function updateSvgDimensions() {
+	if (props.direction === 'ltr') {
+		svg.value.width = Math.max(0, childObj.value.x - mousePosition.value.x);
+		svg.value.height = childObj.value.height;
+	}
+	if (props.direction === 'ttb') {
+		svg.value.width = childObj.value.width;
+		svg.value.height = Math.max(
+			0,
+			childObj.value.y - mousePosition.value.y
+		);
+	}
+}
+
+// Update the mouse position
+function updateMousePosition(e) {
+	if (timeout.value) clearTimeout(timeout.value);
 
 	if (props.direction === 'ltr') {
 		if (e.clientX < oldMousePosition.value.x) {
-			mousePosition.value.x = e.clientX + 5;
+			mousePosition.value.x = e.clientX + props.distanceFromCursor;
 			mousePosition.value.y = e.clientY;
 		}
 
@@ -125,23 +169,24 @@ const updateMousePosition = (e) => {
 			mousePosition.value.x = e.clientX;
 			mousePosition.value.y = e.clientY;
 		} else {
-			timeout = setTimeout(() => {
+			timeout.value = setTimeout(() => {
 				if (
 					e.clientX === oldMousePosition.value.x &&
 					e.clientY === oldMousePosition.value.y &&
 					e.clientX > 0 &&
 					e.clientY > 0
 				) {
-					mousePosition.value.x = e.clientX + 5;
+					mousePosition.value.x =
+						e.clientX + props.distanceFromCursor;
 					mousePosition.value.y = e.clientY;
+					updateSvgDimensions();
 				}
-				updateSvgDimensions();
-			}, 100);
+			}, props.timeoutDelay);
 		}
 	}
 	if (props.direction === 'ttb') {
 		if (e.clientY < oldMousePosition.value.y) {
-			mousePosition.value.y = e.clientY + 5;
+			mousePosition.value.y = e.clientY + props.distanceFromCursor;
 			mousePosition.value.x = e.clientX;
 		}
 
@@ -149,101 +194,95 @@ const updateMousePosition = (e) => {
 			mousePosition.value.y = e.clientY;
 			mousePosition.value.x = e.clientX;
 		} else {
-			timeout = setTimeout(() => {
+			timeout.value = setTimeout(() => {
 				if (
 					e.clientX === oldMousePosition.value.x &&
 					e.clientY === oldMousePosition.value.y &&
 					e.clientX > 0 &&
 					e.clientY > 0
 				) {
-					mousePosition.value.y = e.clientY + 5;
+					mousePosition.value.y =
+						e.clientY + props.distanceFromCursor;
 					mousePosition.value.x = e.clientX;
+					updateSvgDimensions();
 				}
-				updateSvgDimensions();
-			}, 100);
+			}, props.timeoutDelay);
 		}
 	}
 
 	oldMousePosition.value.x = e.clientX;
 	oldMousePosition.value.y = e.clientY;
-};
+}
 
-// Update the dimensions of the parent and child objects
-const updateObjectDimensions = () => {
-	parentObj.value = {
-		x: parentObj.x,
-		y: parentObj.y,
-		width: parentObj.width,
-		height: parentObj.height,
-	} = props.parent.getBoundingClientRect();
+function handleMouseMove(e) {
+	if (rafId.value) cancelAnimationFrame(rafId.value);
 
-	childObj.value = {
-		x: childObj.x,
-		y: childObj.y,
-		width: childObj.width,
-		height: childObj.height,
-	} = props.child.getBoundingClientRect();
-};
+	rafId.value = requestAnimationFrame(() => {
+		updateMousePosition(e);
+		updateObjectDimensions();
+		updateSvgDimensions();
+	});
+}
 
-// Update the dimensions of the svg based on the parent, child and mouse position
-// as well as a possible gap between parent and child
-const updateSvgDimensions = () => {
-	if (props.direction === 'ltr') {
-		gap.value =
-			childObj.value.x - (parentObj.value.width + parentObj.value.x);
+onMounted(() => {
+	if (typeof ResizeObserver !== 'undefined') {
+		resizeObserver.value = new ResizeObserver(() => {
+			updateObjectDimensions();
+			updateSvgDimensions();
+		});
 
-		svg.value.width =
-			parentObj.value.width +
-			parentObj.value.x +
-			gap.value -
-			mousePosition.value.x;
-		svg.value.height = childObj.value.height;
+		if (props.parent) resizeObserver.value.observe(props.parent);
+		if (props.child) resizeObserver.value.observe(props.child);
 	}
-	if (props.direction === 'ttb') {
-		gap.value =
-			childObj.value.y - (parentObj.value.height + parentObj.value.y);
-
-		svg.value.width = childObj.value.width;
-		svg.value.height =
-			parentObj.value.height +
-			parentObj.value.y +
-			gap.value -
-			mousePosition.value.y;
-	}
-};
-
-defineExpose({
-	updateObjectDimensions,
-	updateSvgDimensions,
 });
 
-const addEventListeners = (e) => {
-	e.addEventListener('mousemove', updateMousePosition);
-	e.addEventListener('resize', updateObjectDimensions);
-	e.addEventListener('mousemove', updateObjectDimensions);
-	e.addEventListener('mousemove', updateSvgDimensions);
-	e.addEventListener('resize', updateSvgDimensions);
-};
-
-const removeEventListeners = (e) => {
-	e.removeEventListener('mousemove', updateMousePosition);
-	e.removeEventListener('resize', updateObjectDimensions);
-	e.removeEventListener('mousemove', updateObjectDimensions);
-	e.removeEventListener('mousemove', updateSvgDimensions);
-	e.removeEventListener('resize', updateSvgDimensions);
-};
+onUnmounted(() => {
+	if (props.parent)
+		props.parent.removeEventListener('mousemove', handleMouseMove);
+	if (resizeObserver.value) resizeObserver.value.disconnect();
+	if (timeout.value) clearTimeout(timeout.value);
+	if (rafId.value) cancelAnimationFrame(rafId.value);
+});
 
 watch(
 	() => props.parent,
-	() => {
-		addEventListeners(props.parent);
-		updateObjectDimensions();
-		updateSvgDimensions();
+	(newParent, oldParent) => {
+		if (oldParent) {
+			oldParent.removeEventListener('mousemove', handleMouseMove);
+			resizeObserver.value?.unobserve(oldParent);
+		}
+		if (newParent) {
+			newParent.addEventListener('mousemove', handleMouseMove);
+			resizeObserver.value?.observe(newParent);
+			updateObjectDimensions();
+			updateSvgDimensions();
+		}
 	},
 	{ immediate: true }
 );
 
-onUnmounted(() => {
-	removeEventListeners(props.parent);
-});
+watch(
+	() => props.child,
+	(newChild, oldChild) => {
+		if (oldChild) resizeObserver.value?.unobserve(oldChild);
+		if (newChild) {
+			resizeObserver.value?.observe(newChild);
+			updateObjectDimensions();
+			updateSvgDimensions();
+		}
+	},
+	{ immediate: true }
+);
 </script>
+
+<style lang="postcss">
+:where(.c-hover-guard) {
+	z-index: 99999;
+	position: absolute;
+	pointer-events: none;
+	top: var(--hover-guard-top);
+	left: var(--hover-guard-left);
+	width: var(--hover-guard-width);
+	height: var(--hover-guard-height);
+}
+</style>
