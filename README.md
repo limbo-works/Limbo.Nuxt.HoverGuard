@@ -47,16 +47,20 @@ Then you can use the `HoverGuard` component anywhere within the solution, like s
 This is the simple use intended for a single parent/child instance. An example for multiple instances can be seen in the [package playground](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/blob/main/.playground/app.vue).
 
 ## Props overview
-| **Prop**    | **Description**                                                                                                            | **Default value**          | **Data type** |
-|-------------|----------------------------------------------------------------------------------------------------------------------------|----------------------------|---------------|
-| parent      | Menu element. Set as a ref and passed to the component.                                                                    | null                       | Object        |
-| child       | Submenu element. Set as a ref and passed to the component.                                                                 | null                       | Object        |
-| direction   | Set to calculate the correct direction of the component.<br>Based on the submenu placement relative to the parent element. | 'ltr'<br>(_left to right_) | String        |
-| showBlocker | Visualization of the component. Used for development/testing purposes.                                                     | false                      | Boolean       |
+
+| **Prop**           | **Description**                                                                                                            | **Default value**          | **Data type** |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------- | -------------------------- | ------------- |
+| parent             | Menu element. Set as a ref and passed to the component.                                                                    | null                       | Object        |
+| child              | Submenu element. Set as a ref and passed to the component.                                                                 | null                       | Object        |
+| direction          | Set to calculate the correct direction of the component.<br>Based on the submenu placement relative to the parent element. | 'ltr'<br>(_left to right_) | String        |
+| distanceFromCursor | Adjust the space between the cursor and the svg path in pixels.                                                            | 5                          | Number        |
+| timeoutDelay       | Adjust the delay in milliseconds before running calculations when cursor stops moving.                                     | 100                        | Number        |
+| showBlocker        | Visualization of the component. Used for development/testing purposes.                                                     | false                      | Boolean       |
 
 ## Exposed functions
+
 These are intended to be used to retrigger the functions that get and calculate dimensions and placement. Only if needed.
-| **Function**           | **Description**                                                           |
+| **Function** | **Description** |
 |------------------------|---------------------------------------------------------------------------|
-| updateObjectDimensions | Used to get the dimensions and placement of the parent and child element. |
-| updateSvgDimensions    | Used to calculate the dimensions of the blocker component.                |
+| updateObjectDimensions | Used to get the dimensions and placement of the parent and child elements.|
+| updateSvgDimensions | Used to calculate the dimensions of the blocker component. |
