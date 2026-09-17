@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/compare/v1.2.1...v1.2.2) (2026-09-17)
+
+
+### Bug Fixes
+
+* correct workflow failure ([8f35d11](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/commit/8f35d11a8fcfb9f4f5b9ff1a02b665a6aa86127c))
+
 ## [1.2.1](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/compare/v1.2.0...v1.2.1) (2026-09-17)
 
 
