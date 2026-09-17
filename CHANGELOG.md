@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.1](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/compare/v1.2.0...v1.2.1) (2026-09-17)
+
+
+### Bug Fixes
+
+* converted project to use typescript ([5a1c3e2](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/commit/5a1c3e293b59df5eb63c4b3695a5feaed25a95a6))
+* updated version ([602fb0f](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/commit/602fb0f94e33ff6136eb927b339ac524cd77130b))
+
 ## [1.1.1](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/compare/v1.1.0...v1.1.1) (2025-09-22)
 
 ### Bug Fixes
