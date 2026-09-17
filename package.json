@@ -3,19 +3,25 @@
 	"type": "module",
 	"version": "1.2.1",
 	"main": "./nuxt.config.ts",
+	"types": "./types/index.ts",
 	"scripts": {
 		"dev": "nuxi dev .playground",
 		"dev:prepare": "nuxt prepare .playground",
+		"prepare": "nuxt prepare",
 		"build": "nuxt build .playground",
 		"generate": "nuxt generate .playground",
 		"preview": "nuxt preview .playground",
-		"prettier": "prettier \"**/*.{js,vue,md,yml,css,scss,json}\"",
-		"lint": "yarn prettier --check . && yarn eslint --quiet .",
-		"lint:fix": "yarn prettier --write . && yarn eslint --fix --quiet ."
+		"typecheck": "vue-tsc --noEmit",
+		"prettier": "prettier \"**/*.{js,ts,vue,md,yml,css,scss,json}\"",
+		"lint": "yarn prettier --check . && yarn eslint --quiet --ext .vue,.js,.ts .",
+		"lint:fix": "yarn prettier --write . && yarn eslint --fix --quiet --ext .vue,.js,.ts ."
 	},
 	"devDependencies": {
 		"@limbo-works/lint-configs": "1.0.3",
+		"@typescript-eslint/parser": "^8.70.0",
 		"nuxt": "^4.1.1",
-		"vue": "latest"
+		"typescript": "^5.7.3",
+		"vue": "latest",
+		"vue-tsc": "^3.3.11"
 	}
 }

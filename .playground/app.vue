@@ -88,18 +88,18 @@
 	</div>
 </template>
 
-<script setup>
-const parent = ref({});
-const child = ref({});
-const parentSecond = ref({});
-const childSecond = ref({});
+<script setup lang="ts">
+const parent = ref<HTMLElement | null>(null);
+const child = ref<HTMLElement | null>(null);
+const parentSecond = ref<HTMLElement | null>(null);
+const childSecond = ref<HTMLElement | null>(null);
 
-const show = ref(false);
-const showSecond = ref(false);
-const hasSideMenu = ref(true);
-const isHorizontal = ref(false);
+const show = ref<boolean>(false);
+const showSecond = ref<boolean>(false);
+const hasSideMenu = ref<boolean>(true);
+const isHorizontal = ref<boolean>(false);
 
-const toggleMenu = (level) => {
+const toggleMenu = (level: number): void => {
 	if (level === 1) {
 		show.value = !show.value;
 		if (showSecond.value) {

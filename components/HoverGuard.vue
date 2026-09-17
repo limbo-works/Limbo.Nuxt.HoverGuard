@@ -22,54 +22,58 @@
 	</svg>
 </template>
 
-<script setup>
-const props = defineProps({
-	parent: { type: Object, default: null },
-	child: { type: Object, default: null },
-	direction: {
-		type: String,
-		default: 'ltr',
-	},
-	distanceFromCursor: {
-		type: Number,
-		default: 5,
-	},
-	timeoutDelay: {
-		type: Number,
-		default: 100,
-	},
-	showBlocker: {
-		type: Boolean,
-		default: false,
-	},
+<script setup lang="ts">
+import type {
+	HoverGuardProps,
+	HoverGuardRect,
+	HoverGuardPosition,
+} from '../types';
+
+const props = withDefaults(defineProps<HoverGuardProps>(), {
+	parent: null,
+	child: null,
+	direction: 'ltr',
+	distanceFromCursor: 5,
+	timeoutDelay: 100,
+	showBlocker: false,
 });
 
 const id = useId();
 
-const parentObj = ref({ x: 0, y: 0, height: 0, width: 0 });
-const childObj = ref({ x: 0, y: 0, height: 0, width: 0 });
+const parentObj = ref<DOMRect | HoverGuardRect>({
+	x: 0,
+	y: 0,
+	height: 0,
+	width: 0,
+});
+const childObj = ref<DOMRect | HoverGuardRect>({
+	x: 0,
+	y: 0,
+	height: 0,
+	width: 0,
+});
 
-const mousePosition = ref({
+const mousePosition = ref<{ x: number; y: number }>({
 	x: typeof window !== 'undefined' ? window.innerWidth : 0,
 	y: 0,
 });
 
-const oldMousePosition = ref({
+const oldMousePosition = ref<{ x: number; y: number }>({
 	x: 0,
 	y: 0,
 });
 
-const svg = ref({
+const svg = ref<{ width: number; height: number }>({
 	width: 0,
 	height: 0,
 });
 
-const timeout = ref(null);
-const rafId = ref(null);
-const resizeObserver = ref(null);
+const timeout = ref<ReturnType<typeof setTimeout> | null>(null);
+const rafId = ref<number | null>(null);
+const resizeObserver = ref<ResizeObserver | null>(null);
 
 // Toggle the path if the mouse is positioned between the parent and child x or y position
-const togglePath = computed(() => {
+const togglePath = computed<boolean>(() => {
 	if (props.direction === 'ltr') {
 		return (
 			mousePosition.value.x < childObj.value.x &&
@@ -86,8 +90,8 @@ const togglePath = computed(() => {
 });
 
 // Calculate the position of the svg area
-const svgPosition = computed(() => {
-	let obj = { top: 0, left: 0, right: 0, bottom: 0 };
+const svgPosition = computed<HoverGuardPosition>(() => {
+	const obj: HoverGuardPosition = { top: 0, left: 0, right: 0, bottom: 0 };
 
 	if (props.direction === 'ltr') {
 		obj.top = childObj.value.y;
@@ -102,7 +106,7 @@ const svgPosition = computed(() => {
 });
 
 // Draw the path based on the menu rotation
-const draw = computed(() => {
+const draw = computed<string>(() => {
 	if (props.direction === 'ltr') {
 		return `M 0, ${mousePosition.value.y - childObj.value.y} L ${
 			svg.value.width
@@ -113,10 +117,11 @@ const draw = computed(() => {
 			svg.value.height
 		} L ${mousePosition.value.x - childObj.value.x}, 0 z`;
 	}
+	return '';
 });
 
 // Update the dimensions of the parent and child objects
-function updateObjectDimensions() {
+function updateObjectDimensions(): void {
 	if (!props.parent || !props.child) return;
 	const pRect = props.parent.getBoundingClientRect();
 	const cRect = props.child.getBoundingClientRect();
@@ -141,7 +146,7 @@ function updateObjectDimensions() {
 }
 
 // Update the dimensions of the svg based on the parent, child and mouse position
-function updateSvgDimensions() {
+function updateSvgDimensions(): void {
 	if (props.direction === 'ltr') {
 		svg.value.width = Math.max(0, childObj.value.x - mousePosition.value.x);
 		svg.value.height = childObj.value.height;
@@ -156,7 +161,7 @@ function updateSvgDimensions() {
 }
 
 // Update the mouse position
-function updateMousePosition(e) {
+function updateMousePosition(e: MouseEvent): void {
 	if (timeout.value) clearTimeout(timeout.value);
 
 	if (props.direction === 'ltr') {
@@ -214,7 +219,7 @@ function updateMousePosition(e) {
 	oldMousePosition.value.y = e.clientY;
 }
 
-function handleMouseMove(e) {
+function handleMouseMove(e: MouseEvent): void {
 	if (rafId.value) cancelAnimationFrame(rafId.value);
 
 	rafId.value = requestAnimationFrame(() => {
