@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/compare/v1.2.2...v1.2.3) (2026-09-23)
+
+
+### Bug Fixes
+
+* use runtime props declaration to avoid requiring typescript in consuming projects ([ebf1663](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/commit/ebf1663a24b1260252645e63b13ef5c5b468ae87))
+
 ## [1.2.2](https://github.com/limbo-works/Limbo.Nuxt.HoverGuard/compare/v1.2.1...v1.2.2) (2026-09-17)
 
 
