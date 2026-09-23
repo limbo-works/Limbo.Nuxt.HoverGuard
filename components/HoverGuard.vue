@@ -23,19 +23,40 @@
 </template>
 
 <script setup lang="ts">
+import type { PropType } from 'vue';
 import type {
-	HoverGuardProps,
+	HoverGuardDirection,
 	HoverGuardRect,
 	HoverGuardPosition,
 } from '../types';
 
-const props = withDefaults(defineProps<HoverGuardProps>(), {
-	parent: null,
-	child: null,
-	direction: 'ltr',
-	distanceFromCursor: 5,
-	timeoutDelay: 100,
-	showBlocker: false,
+// Runtime (not type-based) props declaration so consumers don't need
+// "typescript" resolvable at build time to compile this SFC.
+const props = defineProps({
+	parent: {
+		type: Object as PropType<HTMLElement | null>,
+		default: null,
+	},
+	child: {
+		type: Object as PropType<HTMLElement | null>,
+		default: null,
+	},
+	direction: {
+		type: String as PropType<HoverGuardDirection>,
+		default: 'ltr',
+	},
+	distanceFromCursor: {
+		type: Number,
+		default: 5,
+	},
+	timeoutDelay: {
+		type: Number,
+		default: 100,
+	},
+	showBlocker: {
+		type: Boolean,
+		default: false,
+	},
 });
 
 const id = useId();
